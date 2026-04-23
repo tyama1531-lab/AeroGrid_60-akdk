@@ -18,7 +18,7 @@
 				&kp INSERT   &kp LGUI     &kp LALT          &kp SPACE            &mo 1               &mo 2             &kp SPACE            &kp LS(F10)  &mo 3        &bt BT_CLR
             >;
         };
-
+ 
         layer_1 {
             bindings =<
             //  [Col_L1]     [Col_L2]     [Col_L3]     [Col_L4]     [Col_L5]     [Col_L6]            [Col_R1]     [Col_R2]     [Col_R3]     [Col_R4]     [Col_R5]     [Col_R6]
