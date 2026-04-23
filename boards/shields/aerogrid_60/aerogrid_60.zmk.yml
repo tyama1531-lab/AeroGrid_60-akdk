@@ -1,0 +1,14 @@
+
+file_format: "1"
+id: aerogrid_60
+name: aerogrid_60
+type: shield
+features:
+  - keys
+  - studio
+outputs:
+  - usb
+  - ble
+siblings:
+  - aerogrid_60_left
+  - aerogrid_60_right

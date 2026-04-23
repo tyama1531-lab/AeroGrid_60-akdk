@@ -1,0 +1,14 @@
+
+if SHIELD_AEROGRID_60_LEFT
+
+config ZMK_KEYBOARD_NAME
+    default "aerogrid_60"
+
+endif
+
+if SHIELD_AEROGRID_60_LEFT || SHIELD_AEROGRID_60_RIGHT
+
+config ZMK_SPLIT
+    default y
+
+endif
