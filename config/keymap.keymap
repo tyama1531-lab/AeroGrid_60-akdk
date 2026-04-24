@@ -10,23 +10,23 @@
 
         layer_0 {
             bindings =<
-            //  [Col_L1]     [Col_L2]     [Col_L3]     [Col_L4]     [Col_L5]     [Col_L6]            [Col_R1]     [Col_R2]     [Col_R3]     [Col_R4]     [Col_R5]     [Col_R6]
-                &kp ESC      &kp N1       &kp N2       &kp N3       &kp N4       &kp N5              &kp N6       &kp N7       &kp N8       &kp N9       &kp N0       &kp MINUS
-				&kp TAB      &kp Q        &kp W        &kp E        &kp R        &kp T               &kp Y        &kp U        &kp I        &kp O        &kp P        &kp BSPC
-				&kp LCTRL    &kp A        &kp S        &kp D        &kp F        &kp G               &kp H        &kp J        &kp K        &kp L            &kp ENTER
- 				&kp LSHFT    &kp Z        &kp X        &kp C        &kp V        &kp B               &kp N        &kp M        &kp COMMA    &kp DOT      &kp FSLH     &kp F10
-				&kp INSERT   &kp LGUI     &kp LALT          &kp SPACE            &mo 1               &mo 2             &kp SPACE            &kp LS(F10)  &mo 3        &none
+            //  [Col_L1]        [Col_L2]        [Col_L3]        [Col_L4]        [Col_L5]        [Col_L6]               [Col_R1]        [Col_R2]        [Col_R3]        [Col_R4]        [Col_R5]        [Col_R6]
+                &kp ESC         &kp N1          &kp N2          &kp N3          &kp N4          &kp N5                 &kp N6          &kp N7          &kp N8          &kp N9          &kp N0          &kp MINUS
+				&kp TAB         &kp Q           &kp W           &kp E           &kp R           &kp T                  &kp Y           &kp U           &kp I           &kp O           &kp P           &kp BSPC
+				&kp LCTRL       &kp A           &kp S           &kp D           &kp F           &kp G                  &kp H           &kp J           &kp K           &kp L                  &kp ENTER
+ 				&kp LSHFT       &kp Z           &kp X           &kp C           &kp V           &kp B                  &kp N           &kp M           &kp COMMA       &kp DOT         &kp FSLH        &kp F10
+				&kp INSERT      &kp LGUI        &kp LALT              &kp SPACE                 &mo 1                  &mo 2                &kp SPACE                  &kp LS(F10)     &mo 3           &none
             >;
         };
  
         layer_1 {
             bindings =<
             //  [Col_L1]        [Col_L2]        [Col_L3]        [Col_L4]        [Col_L5]        [Col_L6]               [Col_R1]        [Col_R2]        [Col_R3]        [Col_R4]        [Col_R5]        [Col_R6]
-                &kp ESC         &none           &none           &none           &none           &none                  &none           &none           &none           &none           &none           &kp EQUAL
+                &kp ESC         &kp F1          &kp F2          &kp F3          &kp F4          &kp F5                 &kp F6          &kp F7          &kp F8          &kp F9          &kp F10         &kp EQUAL
 				&kp TAB         &none           &kp UP          &none           &none           &none                  &none           &none           &none           &kp LBKT        &kp RBKT        &kp DELETE
 				&kp LCTRL       &kp LEFT        &kp DOWN        &kp RIGHT       &none           &none                  &none           &none           &kp SEMI        &kp SQT                &kp ENTER
 				&kp LSHFT       &none           &none           &none           &none           &mo 4                  &none           &none           &none           &kp GRAVE       &kp BSLH        &kp F7
-				&kp CAPS        &kp LGUI        &kp LALT             &kp SPACE                  &none                  &none                     &none                 &none           &none           &none
+				&kp CAPS        &kp LGUI        &kp LALT              &kp SPACE                 &none                  &none                     &none                 &none           &none           &none
             >;
         };
 
@@ -48,7 +48,7 @@
 				&kp TAB         &bt BT_SEL 0    &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_CLR             &none           &none           &none           &none           &none           &kp F24
 				&kp LCTRL       &none           &none           &none           &none           &none                  &kp HOME        &kp END         &none           &none                &kp ENTER
 				&kp LSHFT       &none           &none           &none           &none           &none                  &kp END         &none           &none           &none           &none           &kp F7
-				&kp CAPS        &kp LGUI        &kp LALT             &kp SPACE                  &none                  &none                 &none                     &none           &none           &none
+				&kp CAPS        &kp LGUI        &kp LALT              &kp SPACE                 &none                  &none                 &none                     &none           &none           &none
             >;
         };
 
