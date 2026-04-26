@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ZMK Keymap Visualizer</title>
+<style>
+body { font-family: system-ui, sans-serif; background:#f5f5f7; padding:20px;}
+.layer { background:#fff; padding:16px; margin-bottom:40px; border-radius:10px; box-shadow:0 2px 4px rgba(0,0,0,0.1);}
+.layer-title { font-size:20px; font-weight:600; margin-bottom:12px;}
+.row { display:flex; margin-bottom:6px;}
+.gap { width:32px;}
+.key {
+  height:48px; width:48px; margin-right:4px;
+  border-radius:6px; border:1px solid #d0d5dd;
+  display:flex; align-items:center; justify-content:center;
+  background:#e9ecf1; font-size:14px; box-sizing:border-box;
+}
+.key.w2 { width:calc(48px*2 + 4px); }
+.mod{background:#ffe9d5;} .func{background:#e5f4ff;} .layerkey{background:#f0e5ff;}
+</style>
+</head>
+<body>
+
+<button onclick="generateKeymap()">keymap生成</button>
+<pre id="output"></pre>
+
+<div class="key" onclick="editKey(this)">A</div>
+
+<h1>ZMK Keymap Visualizer</h1>
+
+<!-- ================= LAYER0 ================= -->
+<div class="layer"><div class="layer-title">Layer0</div>
+
+<div class="row">
+<div class="key func" data-pos="L0_R1_L1">ESC</div><div class="key" data-pos="L0_R1_L2">1</div><div class="key" data-pos="L0_R1_L3">2</div><div class="key" data-pos="L0_R1_L4">3</div><div class="key" data-pos="L0_R1_L5">4</div><div class="key" data-pos="L0_R1_L6">5</div>
+<div class="gap"></div>
+<div class="key" data-pos="L0_R1_R1">6</div><div class="key" data-pos="L0_R1_R2">7</div><div class="key" data-pos="L0_R1_R3">8</div><div class="key" data-pos="L0_R1_R4">9</div><div class="key" data-pos="L0_R1_R5">0</div><div class="key" data-pos="L0_R1_R6">-</div>
+</div>
+
+<div class="row">
+<div class="key func" data-pos="L0_R2_L1">Tab</div><div class="key" data-pos="L0_R2_L2">Q</div><div class="key" data-pos="L0_R2_L3">W</div><div class="key" data-pos="L0_R2_L4">E</div><div class="key" data-pos="L0_R2_L5">R</div><div class="key" data-pos="L0_R2_L6">T</div>
+<div class="gap"></div>
+<div class="key" data-pos="L0_R2_R1">Y</div><div class="key" data-pos="L0_R2_R2">U</div><div class="key" data-pos="L0_R2_R3">I</div><div class="key" data-pos="L0_R2_R4">O</div><div class="key" data-pos="L0_R2_R5">P</div><div class="key func" data-pos="L0_R2_R6">BS</div>
+</div>
+
+<div class="row">
+<div class="key mod" data-pos="L0_R3_L1">Ctrl</div><div class="key" data-pos="L0_R3_L2">A</div><div class="key" data-pos="L0_R3_L3">S</div><div class="key" data-pos="L0_R3_L4">D</div><div class="key" data-pos="L0_R3_L5">F</div><div class="key" data-pos="L0_R3_L6">G</div>
+<div class="gap"></div>
+<div class="key" data-pos="L0_R3_R1">H</div><div class="key" data-pos="L0_R3_R2">J</div><div class="key" data-pos="L0_R3_R3">K</div><div class="key" data-pos="L0_R3_R4">L</div><div class="key w2 func" data-pos="L0_R3_R5">Enter</div>
+</div>
+
+<div class="row">
+<div class="key mod" data-pos="L0_R4_L1">Shift</div><div class="key" data-pos="L0_R4_L2">Z</div><div class="key" data-pos="L0_R4_L3">X</div><div class="key" data-pos="L0_R4_L4">C</div><div class="key" data-pos="L0_R4_L5">V</div><div class="key" data-pos="L0_R4_L6">B</div>
+<div class="gap"></div>
+<div class="key" data-pos="L0_R4_R1">N</div><div class="key" data-pos="L0_R4_R2">M</div><div class="key" data-pos="L0_R4_R3">,</div><div class="key" data-pos="L0_R4_R4">.</div><div class="key" data-pos="L0_R4_R5">/</div><div class="key func" data-pos="L0_R4_R6">F10</div>
+</div>
+
+<div class="row">
+<div class="key func" data-pos="L0_R5_L1">英数</div><div class="key mod" data-pos="L0_R5_L2">Win</div><div class="key mod" data-pos="L0_R5_L3">Alt</div><div class="key w2" data-pos="L0_R5_L4">Space</div><div class="key layerkey" data-pos="L0_R5_L5">Lyr1</div>
+<div class="gap"></div>
+<div class="key layerkey" data-pos="L0_R5_R1">Lyr2</div><div class="key w2" data-pos="L0_R5_R2">Space</div><div class="key layerkey" data-pos="L0_R5_R3">Lyr3</div><div class="key" data-pos="L0_R5_R4"></div><div class="key" data-pos="L0_R5_R5"></div>
+</div>
+
+</div>
+
+<!-- ================= LAYER1 ================= -->
+<div class="layer">
+<div class="layer-title">Layer 1</div>
+
+<!-- Row1 -->
+<div class="row">
+  <div class="key func" data-pos="L1_R1_L1">ESC</div>
+  <div class="key func" data-pos="L1_R1_L2">F1</div>
+  <div class="key func" data-pos="L1_R1_L3">F2</div>
+  <div class="key func" data-pos="L1_R1_L4">F3</div>
+  <div class="key func" data-pos="L1_R1_L5">F4</div>
+  <div class="key func" data-pos="L1_R1_L6">F5</div>
+
+  <div class="gap"></div>
+
+  <div class="key func" data-pos="L1_R1_R1">F6</div>
+  <div class="key func" data-pos="L1_R1_R2">F7</div>
+  <div class="key func" data-pos="L1_R1_R3">F8</div>
+  <div class="key func" data-pos="L1_R1_R4">F9</div>
+  <div class="key func" data-pos="L1_R1_R5">F10</div>
+  <div class="key" data-pos="L1_R1_R6">=</div>
+</div>
+
+<!-- Row2 -->
+<div class="row">
+  <div class="key func" data-pos="L1_R2_L1">Tab</div>
+  <div class="key" data-pos="L1_R2_L2"></div>
+  <div class="key" data-pos="L1_R2_L3">↑</div>
+  <div class="key" data-pos="L1_R2_L4"></div>
+  <div class="key" data-pos="L1_R2_L5"></div>
+  <div class="key" data-pos="L1_R2_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L1_R2_R1"></div>
+  <div class="key" data-pos="L1_R2_R2"></div> <!-- ★1U（修正済） -->
+  <div class="key" data-pos="L1_R2_R3"></div>
+  <div class="key" data-pos="L1_R2_R4">[</div>
+  <div class="key" data-pos="L1_R2_R5">]</div>
+  <div class="key func" data-pos="L1_R2_R6">Del</div>
+</div>
+
+<!-- Row3 -->
+<div class="row">
+  <div class="key mod" data-pos="L1_R3_L1">Ctrl</div>
+  <div class="key" data-pos="L1_R3_L2">←</div>
+  <div class="key" data-pos="L1_R3_L3">↓</div>
+  <div class="key" data-pos="L1_R3_L4">→</div>
+  <div class="key" data-pos="L1_R3_L5"></div>
+  <div class="key" data-pos="L1_R3_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L1_R3_R1"></div>
+  <div class="key" data-pos="L1_R3_R2"></div>
+  <div class="key" data-pos="L1_R3_R3">;</div>
+  <div class="key" data-pos="L1_R3_R4">’</div>
+  <div class="key w2 func" data-pos="L1_R3_R5">Enter</div>
+</div>
+
+<!-- Row4 -->
+<div class="row">
+  <div class="key mod" data-pos="L1_R4_L1">Shift</div>
+  <div class="key" data-pos="L1_R4_L2"></div>
+  <div class="key" data-pos="L1_R4_L3"></div>
+  <div class="key" data-pos="L1_R4_L4"></div>
+  <div class="key" data-pos="L1_R4_L5"></div>
+  <div class="key layerkey" data-pos="L1_R4_L6">Lyr4</div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L1_R4_R1"></div>
+  <div class="key" data-pos="L1_R4_R2"></div>
+  <div class="key" data-pos="L1_R4_R3"></div>
+  <div class="key" data-pos="L1_R4_R4">`</div>
+  <div class="key" data-pos="L1_R4_R5">\</div>
+  <div class="key func" data-pos="L1_R4_R6">F7</div>
+</div>
+
+<!-- Row5 -->
+<div class="row">
+  <div class="key func" data-pos="L1_R5_L1">かな</div>
+  <div class="key mod" data-pos="L1_R5_L2">Win</div>
+  <div class="key mod" data-pos="L1_R5_L3">Alt</div>
+  <div class="key w2" data-pos="L1_R5_L4">Space</div>
+  <div class="key" data-pos="L1_R5_L5"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L1_R5_R1"></div>
+  <div class="key w2" data-pos="L1_R5_R2"></div> <!-- ★ここ2U（重要） -->
+  <div class="key" data-pos="L1_R5_R3"></div>
+  <div class="key" data-pos="L1_R5_R4"></div>
+  <div class="key" data-pos="L1_R5_R5"></div>
+</div>
+
+</div>
+
+<!-- ================= LAYER2 ================= -->
+<div class="layer">
+<div class="layer-title">Layer 2</div>
+
+<!-- Row1 -->
+<div class="row">
+  <div class="key func" data-pos="L2_R1_L1">ESC</div>
+  <div class="key func" data-pos="L2_R1_L2">F1</div>
+  <div class="key func" data-pos="L2_R1_L3">F2</div>
+  <div class="key func" data-pos="L2_R1_L4">F3</div>
+  <div class="key func" data-pos="L2_R1_L5">F4</div>
+  <div class="key func" data-pos="L2_R1_L6">F5</div>
+
+  <div class="gap"></div>
+
+  <div class="key func" data-pos="L2_R1_R1">F6</div>
+  <div class="key func" data-pos="L2_R1_R2">F7</div>
+  <div class="key func" data-pos="L2_R1_R3">F8</div>
+  <div class="key func" data-pos="L2_R1_R4">F9</div>
+  <div class="key func" data-pos="L2_R1_R5">F10</div>
+  <div class="key func" data-pos="L2_R1_R6">F11</div>
+</div>
+
+<!-- Row2 -->
+<div class="row">
+  <div class="key func" data-pos="L2_R2_L1">Tab</div>
+  <div class="key func" data-pos="L2_R2_L2">F12</div>
+  <div class="key" data-pos="L2_R2_L3">↑</div>
+  <div class="key" data-pos="L2_R2_L4"></div>
+  <div class="key func" data-pos="L2_R2_L5">PgUp</div>
+  <div class="key" data-pos="L2_R2_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L2_R2_R1"></div>
+  <div class="key" data-pos="L2_R2_R2"></div> <!-- ★1U -->
+  <div class="key" data-pos="L2_R2_R3"></div>
+  <div class="key" data-pos="L2_R2_R4"></div>
+  <div class="key" data-pos="L2_R2_R5"></div>
+  <div class="key func" data-pos="L2_R2_R6">Del</div>
+</div>
+
+<!-- Row3 -->
+<div class="row">
+  <div class="key mod" data-pos="L2_R3_L1">Ctrl</div>
+  <div class="key" data-pos="L2_R3_L2">←</div>
+  <div class="key" data-pos="L2_R3_L3">↓</div>
+  <div class="key" data-pos="L2_R3_L4">→</div>
+  <div class="key func" data-pos="L2_R3_L5">PgDn</div>
+  <div class="key" data-pos="L2_R3_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key func" data-pos="L2_R3_R1">Home</div>
+  <div class="key func" data-pos="L2_R3_R2">End</div>
+  <div class="key" data-pos="L2_R3_R3">↑</div>
+  <div class="key" data-pos="L2_R3_R4"></div>
+  <div class="key w2 func" data-pos="L2_R3_R5">Enter</div>
+</div>
+
+<!-- Row4 -->
+<div class="row">
+  <div class="key mod" data-pos="L2_R4_L1">Shift</div>
+  <div class="key" data-pos="L2_R4_L2"></div>
+  <div class="key" data-pos="L2_R4_L3">X</div>
+  <div class="key" data-pos="L2_R4_L4">C</div>
+  <div class="key" data-pos="L2_R4_L5">V</div>
+  <div class="key" data-pos="L2_R4_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key func" data-pos="L2_R4_R1">End</div>
+  <div class="key" data-pos="L2_R4_R2">←</div>
+  <div class="key" data-pos="L2_R4_R3">↓</div>
+  <div class="key" data-pos="L2_R4_R4">→</div>
+  <div class="key" data-pos="L2_R4_R5"></div>
+  <div class="key func" data-pos="L2_R4_R6">F7</div>
+</div>
+
+<!-- Row5 -->
+<div class="row">
+  <div class="key func" data-pos="L2_R5_L1">かな</div>
+  <div class="key mod" data-pos="L2_R5_L2">Win</div>
+  <div class="key mod" data-pos="L2_R5_L3">Alt</div>
+  <div class="key w2" data-pos="L2_R5_L4">Space</div>
+  <div class="key" data-pos="L2_R5_L5"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L2_R5_R1"></div>
+  <div class="key w2" data-pos="L2_R5_R2"></div> <!-- ★2U -->
+  <div class="key" data-pos="L2_R5_R3"></div>
+  <div class="key" data-pos="L2_R5_R4"></div>
+  <div class="key" data-pos="L2_R5_R5"></div>
+</div>
+</div>
+
+<!-- ================= LAYER3 ================= -->
+<div class="layer">
+<div class="layer-title">Layer 3</div>
+
+<!-- Row1 -->
+<div class="row">
+  <div class="key func" data-pos="L3_R1_L1">ESC</div>
+  <div class="key func" data-pos="L3_R1_L2">①</div>
+  <div class="key func" data-pos="L3_R1_L3">②</div>
+  <div class="key func" data-pos="L3_R1_L4">③</div>
+  <div class="key func" data-pos="L3_R1_L5">④</div>
+  <div class="key func" data-pos="L3_R1_L6">⑤</div>
+
+  <div class="gap"></div>
+
+  <div class="key func" data-pos="L3_R1_R1">⑥</div>
+  <div class="key func" data-pos="L3_R1_R2">⑦</div>
+  <div class="key func" data-pos="L3_R1_R3">⑧</div>
+  <div class="key func" data-pos="L3_R1_R4">⑨</div>
+  <div class="key func" data-pos="L3_R1_R5">⑩</div>
+  <div class="key func" data-pos="L3_R1_R6">→</div>
+</div>
+
+<!-- Row2 -->
+<div class="row">
+  <div class="key func" data-pos="L3_R2_L1">Tab</div>
+  <div class="key func" data-pos="L3_R2_L2">BT0</div>
+  <div class="key func" data-pos="L3_R2_L3">BT1</div>
+  <div class="key func" data-pos="L3_R2_L4">BT2</div>
+  <div class="key func" data-pos="L3_R2_L5">BT3</div>
+  <div class="key func" data-pos="L3_R2_L6">BTCLR</div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L3_R2_R1"></div>
+  <div class="key" data-pos="L3_R2_R2"></div> <!-- ★1U -->
+  <div class="key" data-pos="L3_R2_R3"></div>
+  <div class="key" data-pos="L3_R2_R4"></div>
+  <div class="key" data-pos="L3_R2_R5"></div>
+  <div class="key func" data-pos="L3_R2_R6">F24</div>
+</div>
+
+<!-- Row3 -->
+<div class="row">
+  <div class="key mod" data-pos="L3_R3_L1">Ctrl</div>
+  <div class="key" data-pos="L3_R3_L2"></div>
+  <div class="key" data-pos="L3_R3_L3"></div>
+  <div class="key" data-pos="L3_R3_L4"></div>
+  <div class="key" data-pos="L3_R3_L5"></div>
+  <div class="key" data-pos="L3_R3_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key func" data-pos="L3_R3_R1">Home</div>
+  <div class="key func" data-pos="L3_R3_R2">End</div>
+  <div class="key" data-pos="L3_R3_R3"></div>
+  <div class="key" data-pos="L3_R3_R4"></div>
+  <div class="key w2 func" data-pos="L3_R3_R5">Enter</div>
+</div>
+
+<!-- Row4 -->
+<div class="row">
+  <div class="key mod" data-pos="L3_R4_L1">Shift</div>
+  <div class="key" data-pos="L3_R4_L2"></div>
+  <div class="key" data-pos="L3_R4_L3"></div>
+  <div class="key" data-pos="L3_R4_L4"></div>
+  <div class="key" data-pos="L3_R4_L5"></div>
+  <div class="key" data-pos="L3_R4_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key func" data-pos="L3_R4_R1">End</div>
+  <div class="key" data-pos="L3_R4_R2"></div>
+  <div class="key" data-pos="L3_R4_R3"></div>
+  <div class="key" data-pos="L3_R4_R4"></div>
+  <div class="key" data-pos="L3_R4_R5"></div>
+  <div class="key func" data-pos="L3_R4_R6">F7</div>
+</div>
+
+<!-- Row5 -->
+<div class="row">
+  <div class="key func" data-pos="L3_R5_L1">かな</div>
+  <div class="key mod" data-pos="L3_R5_L2">Win</div>
+  <div class="key mod" data-pos="L3_R5_L3">Alt</div>
+  <div class="key w2" data-pos="L3_R5_L4">Space</div>
+  <div class="key" data-pos="L3_R5_L5"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L3_R5_R1"></div>
+  <div class="key w2" data-pos="L3_R5_R2"></div> <!-- ★2U -->
+  <div class="key" data-pos="L3_R5_R3"></div>
+  <div class="key" data-pos="L3_R5_R4"></div>
+  <div class="key" data-pos="L3_R5_R5"></div>
+</div>
+</div>
+
+<!-- ================= LAYER4 ================= -->
+<div class="layer">
+<div class="layer-title">Layer 4 (Numpad)</div>
+
+<!-- Row1 -->
+<div class="row">
+  <div class="key func" data-pos="L4_R1_L1">ESC</div>
+  <div class="key" data-pos="L4_R1_L2"></div>
+  <div class="key" data-pos="L4_R1_L3"></div>
+  <div class="key" data-pos="L4_R1_L4"></div>
+  <div class="key" data-pos="L4_R1_L5"></div>
+  <div class="key" data-pos="L4_R1_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L4_R1_R1"></div>
+  <div class="key" data-pos="L4_R1_R2">Tab</div>
+  <div class="key" data-pos="L4_R1_R3">*</div>
+  <div class="key" data-pos="L4_R1_R4">/</div>
+  <div class="key" data-pos="L4_R1_R5"></div>
+  <div class="key" data-pos="L4_R1_R6">-</div>
+</div>
+
+<!-- Row2 -->
+<div class="row">
+  <div class="key func" data-pos="L4_R2_L1">Tab</div>
+  <div class="key" data-pos="L4_R2_L2"></div>
+  <div class="key" data-pos="L4_R2_L3">↑</div>
+  <div class="key" data-pos="L4_R2_L4"></div>
+  <div class="key func" data-pos="L4_R2_L5">PgUp</div>
+  <div class="key" data-pos="L4_R2_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L4_R2_R1"></div>
+  <div class="key" data-pos="L4_R2_R2">7</div> <!-- ★1U -->
+  <div class="key" data-pos="L4_R2_R3">8</div>
+  <div class="key" data-pos="L4_R2_R4">9</div>
+  <div class="key" data-pos="L4_R2_R5">+</div>
+  <div class="key func" data-pos="L4_R2_R6">BS</div>
+</div>
+
+<!-- Row3 -->
+<div class="row">
+  <div class="key mod" data-pos="L4_R3_L1">Ctrl</div>
+  <div class="key" data-pos="L4_R3_L2">←</div>
+  <div class="key" data-pos="L4_R3_L3">↓</div>
+  <div class="key" data-pos="L4_R3_L4">→</div>
+  <div class="key func" data-pos="L4_R3_L5">PgDn</div>
+  <div class="key" data-pos="L4_R3_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L4_R3_R1"></div>
+  <div class="key" data-pos="L4_R3_R2">4</div>
+  <div class="key" data-pos="L4_R3_R3">5</div>
+  <div class="key" data-pos="L4_R3_R4">6</div>
+  <div class="key w2 func" data-pos="L4_R3_R5">Enter</div> <!-- ★縦2U扱い -->
+</div>
+
+<!-- Row4 -->
+<div class="row">
+  <div class="key mod" data-pos="L4_R4_L1">Shift</div>
+  <div class="key" data-pos="L4_R4_L2"></div>
+  <div class="key" data-pos="L4_R4_L3"></div>
+  <div class="key" data-pos="L4_R4_L4"></div>
+  <div class="key" data-pos="L4_R4_L5"></div>
+  <div class="key" data-pos="L4_R4_L6"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L4_R4_R1"></div>
+  <div class="key" data-pos="L4_R4_R2">1</div>
+  <div class="key" data-pos="L4_R4_R3">2</div>
+  <div class="key" data-pos="L4_R4_R4">3</div>
+  <div class="key" data-pos="L4_R4_R5"></div>
+  <div class="key" data-pos="L4_R4_R6"></div>
+</div>
+
+<!-- Row5 -->
+<div class="row">
+  <div class="key func" data-pos="L4_R5_L1">かな</div>
+  <div class="key mod" data-pos="L4_R5_L2">Win</div>
+  <div class="key mod" data-pos="L4_R5_L3">Alt</div>
+  <div class="key w2" data-pos="L4_R5_L4">Space</div>
+  <div class="key" data-pos="L4_R5_L5"></div>
+
+  <div class="gap"></div>
+
+  <div class="key" data-pos="L4_R5_R1"></div>
+  <div class="key w2" data-pos="L4_R5_R2">0</div> <!-- ★2U -->
+  <div class="key" data-pos="L4_R5_R3">.</div>
+  <div class="key" data-pos="L4_R5_R4"></div>
+  <div class="key" data-pos="L4_R5_R5"></div>
+</div>
+</div>
+
+
+<!-- ここに追加する -->
+<script>
+/* =========================
+   extractKeymap
+========================= */
+function extractKeymap() {
+  const result = {};
+
+  document.querySelectorAll(".layer").forEach((layerEl, layerIndex) => {
+    const layerName = `L${layerIndex}`;
+    result[layerName] = {};
+
+    layerEl.querySelectorAll(".key").forEach(key => {
+      const pos = key.dataset.pos;
+      if (!pos) return;
+
+      const label = key.textContent.trim() || "TRANSPARENT";
+      result[layerName][pos] = label;
+    });
+  });
+
+  return result;
+}
+
+/* =========================
+   jsonToZmk
+========================= */
+function jsonToZmkPretty(json) {
+
+  function mapKey(k) {
+    if (!k || k === "TRANSPARENT") return "&trans";
+
+    const map = {
+      "ESC": "&kp ESC",
+      "1": "&kp N1","2": "&kp N2","3": "&kp N3","4": "&kp N4","5": "&kp N5",
+      "6": "&kp N6","7": "&kp N7","8": "&kp N8","9": "&kp N9","0": "&kp N0",
+      "-": "&kp MINUS","=": "&kp EQUAL",
+      "[": "&kp LBKT","]": "&kp RBKT",
+      ";": "&kp SEMI","’": "&kp SQT",
+      "`": "&kp GRAVE","\\": "&kp BSLH",
+      ",": "&kp COMMA",".": "&kp DOT","/": "&kp SLASH",
+
+      "Tab": "&kp TAB",
+      "Enter": "&kp ENTER",
+      "BS": "&kp BSPC",
+      "Del": "&kp DEL",
+
+      "Ctrl": "&kp LCTRL",
+      "Shift": "&kp LSHIFT",
+      "Alt": "&kp LALT",
+      "Win": "&kp LGUI",
+      "Space": "&kp SPACE",
+
+      "↑": "&kp UP","↓": "&kp DOWN","←": "&kp LEFT","→": "&kp RIGHT",
+
+      "PgUp": "&kp PG_UP","PgDn": "&kp PG_DN",
+      "Home": "&kp HOME","End": "&kp END",
+
+      "Lyr1": "&mo 1","Lyr2": "&mo 2","Lyr3": "&mo 3","Lyr4": "&mo 4",
+
+      "かな": "&kp CAPS",
+      "英数": "&kp INS",
+
+      "①":"&kp F13","②":"&kp F14","③":"&kp F15","④":"&kp F16","⑤":"&kp F17",
+      "⑥":"&kp F18","⑦":"&kp F19","⑧":"&kp F20","⑨":"&kp F21","⑩":"&kp F22",
+      "→":"&kp F23"
+    };
+
+    return map[k] || `&kp ${k}`;
+  }
+
+  let out = "";
+
+  for (const layer in json) {
+    out += `\nlayer_${layer.slice(1)} {\n  bindings = <\n`;
+
+    for (let r = 1; r <= 5; r++) {
+      let row = "    ";
+
+      // 左
+      for (let c = 1; c <= 6; c++) {
+        if (r === 5 && c === 6) continue;
+        const key = json[layer][`${layer}_R${r}_L${c}`];
+        row += mapKey(key) + " ";
+      }
+
+      // ←ここがポイント（スペースで間を空ける）
+      row += "    ";  // 好きなだけ増やせる
+
+      // 右
+      const rightMax = (r === 3) ? 5 : (r === 5 ? 5 : 6);
+      for (let c = 1; c <= rightMax; c++) {
+        const key = json[layer][`${layer}_R${r}_R${c}`];
+        row += mapKey(key) + " ";
+      }
+
+      out += row + "\n";
+    }
+
+    out += "  >;\n};\n";
+  }
+
+  return out;
+}
+
+/* =========================
+   実行ボタン
+========================= */
+function generateKeymap() {
+  const json = extractKeymap();
+  const pretty = jsonToZmkPretty(json);
+
+  console.log(pretty);
+  document.getElementById("output").textContent = pretty;
+}
+</script>
+
+<script>
+function editKey(el) {
+  const current = el.textContent.trim();
+
+  const next = prompt("キーを入力", current);
+
+  if (next !== null) {
+    el.textContent = next;
+  }
+}
+</script>
+
+</body>
+</html>
