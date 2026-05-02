@@ -23,9 +23,9 @@
             bindings =<
             //  [Col_L1]        [Col_L2]        [Col_L3]        [Col_L4]        [Col_L5]        [Col_L6]               [Col_R1]        [Col_R2]        [Col_R3]        [Col_R4]        [Col_R5]        [Col_R6]
                 &kp ESC         &kp F1          &kp F2          &kp F3          &kp F4          &kp F5                 &kp F6          &kp F7          &kp F8          &kp F9          &kp F10         &kp EQUAL
-				&kp TAB         &none           &kp UP          &none           &kp PGUP        &none                  &none           &none           &kp LBKT        &kp RBKT        &kp MINUS       &kp DELETE
-				&kp LCTRL       &kp LEFT        &kp DOWN        &kp RIGHT       &kp PGDN        &kp MINUS              &none           &none           &kp SEMI        &kp SQT                &kp ENTER
-				&kp LSHFT       &none           &none           &none           &none           &mo 4                  &none           &none           &kp GRAVE       &kp BSLH       &none            &kp F7
+				&kp TAB         &none           &kp UP          &none           &kp PGUP        &none                  &none           &kp LBKT        &kp RBKT        &kp MINUS       &none           &kp DELETE
+				&kp LCTRL       &kp LEFT        &kp DOWN        &kp RIGHT       &kp PGDN        &kp MINUS              &none           &kp SEMI        &kp SQT         &none                &kp ENTER
+				&kp LSHFT       &none           &none           &none           &none           &mo 4                  &none           &kp GRAVE       &kp BSLH        &none           &none            &kp F7
 				&kp CAPS        &kp LGUI        &kp LALT              &kp SPACE                 &none                  &none                  &kp SPACE                &none           &none           &none
             >;
         };
@@ -68,15 +68,43 @@
 / {
     combos {
         compatible = "zmk,combos";
-        combo_enter {
-            // 同時押しと判定する時間（ミリ秒）
+        //  0  1  2  3  4  5      6  7  8  9 10 11
+        // 12 13 14 15 16 17     18 19 20 21 22 23 
+        // 24 25 26 27 28 29     30 31 32 33  34
+        // 35 36 37 38 39 40     41 42 43 44 45 46
+        // 47 48 49 50  51       52  53   54 55 56    
+
+        combo_LBKT {
             timeout-ms = <50>;
+            key-positions = <19 20>;
+            bindings = <&kp LBKT>;
+        };
+        combo_RBKT {
+            timeout-ms = <50>;
+            key-positions = <20 21>;
+            bindings = <&kp RBKT>;
+        };
 
-            // 同時押しするキーの番号（インデックス）
-            key-positions = <5 6>;
+        combo_SEMI {
+            timeout-ms = <50>;
+            key-positions = <31 32>;
+            bindings = <&kp SEMI>;
+        };
+        combo_SQT {
+            timeout-ms = <50>;
+            key-positions = <32 33>;
+            bindings = <&kp SQT>;
+        };
 
-            // 実行するキー入力
-            bindings = <&kp ENTER>;
+        combo_GRAVE {
+            timeout-ms = <50>;
+            key-positions = <42 43>;
+            bindings = <&kp GRAVE>;
+        };
+        combo_SQT {
+            timeout-ms = <50>;
+            key-positions = <43 44>;
+            bindings = <&kp SQT>;
         };
     };
 };
