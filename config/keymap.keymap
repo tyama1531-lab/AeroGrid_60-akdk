@@ -100,15 +100,15 @@
             key-positions = <27 28>;
             bindings = <&kp SEMI>;
         };
-        combo_SQT {
-            timeout-ms = <50>;
-            key-positions = <28 29>;
-            bindings = <&kp SQT>;
-        };
         combo_LS_SEMI {
             timeout-ms = <50>;
-            key-positions = <31 32>;
+            key-positions = <28 29>;
             bindings = <&kp LS(SEMI)>;
+        };
+        combo_SQT {
+            timeout-ms = <50>;
+            key-positions = <31 32>;
+            bindings = <&kp SQT>;
         };
         combo_LS_SQT {
             timeout-ms = <50>;
@@ -121,15 +121,15 @@
             key-positions = <38 39>;
             bindings = <&kp GRAVE>;
         };
-        combo_BSLH {
-            timeout-ms = <50>;
-            key-positions = <39 40>;
-            bindings = <&kp BSLH>;
-        };
         combo_LS_GRAVE {
             timeout-ms = <50>;
-            key-positions = <42 43>;
+            key-positions = <39 40>;
             bindings = <&kp LS(GRAVE)>;
+        };
+        combo_BSLH {
+            timeout-ms = <50>;
+            key-positions = <42 43>;
+            bindings = <&kp BSLH>;
         };
         combo_LS_BSLH {
             timeout-ms = <50>;
