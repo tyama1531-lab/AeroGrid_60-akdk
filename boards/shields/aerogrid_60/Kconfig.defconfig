@@ -11,7 +11,4 @@ if SHIELD_AEROGRID_60_LEFT || SHIELD_AEROGRID_60_RIGHT
 config ZMK_SPLIT
     default y
 
-config BT_CTLR_TX_PWR_PLUS_8
-    default y
-    
 endif
