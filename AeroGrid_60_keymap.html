@@ -230,10 +230,28 @@ button.danger:hover {
   background: linear-gradient(135deg, #1e293b 0%, #1e1b4b 100%) !important;
 }
 
+.key-main {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.key-main.text-sm {
+  font-size: 11px;
+  letter-spacing: -0.5px;
+}
+
+.key-main.text-xs {
+  font-size: 10px;
+  letter-spacing: -0.5px;
+}
+
 .key-sub {
-  font-size: 9px;
+  font-size: 8px;
   color: rgba(255,255,255,0.6);
-  margin-top: 2px;
+  margin-top: 1px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -244,6 +262,10 @@ button.danger:hover {
   font-size: 11px;
   font-weight: 700;
   color: #fff;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .key-hold {
   font-size: 9px;
@@ -253,6 +275,10 @@ button.danger:hover {
   padding: 1px 4px;
   border-radius: 3px;
   margin-top: 2px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Tap-Hold Editor Bar */
@@ -1028,30 +1054,41 @@ function formatKeyDisplay(code) {
   if (c.startsWith("&mkp ")) {
     const btn = c.slice(5);
     const mouseMap = {
-      "LCLK": "左クリック", "RCLK": "右クリック", "MCLK": "中クリック", "MB4": "進む", "MB5": "戻る"
+      "LCLK": { main: "🖱️ 左クリック", short: "左クリック" },
+      "RCLK": { main: "🖱️ 右クリック", short: "右クリック" },
+      "MCLK": { main: "🖱️ 中クリック", short: "中クリック" },
+      "MB4": { main: "🖱️ 進む", short: "進む" },
+      "MB5": { main: "🖱️ 戻る", short: "戻る" }
     };
-    return { main: mouseMap[btn] || btn, sub: c, isTapHold: false };
+    const info = mouseMap[btn] || { main: btn, short: btn };
+    return { main: info.short, sub: btn, isTapHold: false, textClass: "text-sm" };
   }
   if (c.startsWith("&msc ")) {
     const scrl = c.slice(5);
     const scrlMap = {
+      "SCRL_UP": "📜 上スクロール", "SCRL_DOWN": "📜 下スクロール", "SCRL_LEFT": "📜 左スクロール", "SCRL_RIGHT": "📜 右スクロール"
+    };
+    const shortMap = {
       "SCRL_UP": "スクロール↑", "SCRL_DOWN": "スクロール↓", "SCRL_LEFT": "スクロール←", "SCRL_RIGHT": "スクロール→"
     };
-    return { main: scrlMap[scrl] || scrl, sub: c, isTapHold: false };
+    return { main: shortMap[scrl] || scrl, sub: scrl, isTapHold: false, textClass: "text-xs" };
   }
   if (c.startsWith("&mmv ")) {
     const mmv = c.slice(5);
-    const mmvMap = {
+    const shortMap = {
       "MOVE_UP": "マウス↑", "MOVE_DOWN": "マウス↓", "MOVE_LEFT": "マウス←", "MOVE_RIGHT": "マウス→"
     };
-    return { main: mmvMap[mmv] || mmv, sub: c, isTapHold: false };
+    return { main: shortMap[mmv] || mmv, sub: mmv, isTapHold: false, textClass: "text-xs" };
   }
 
   if (c.startsWith("&kp ")) {
-    return { main: formatSingleKeyLabel(c.slice(4)), sub: "", isTapHold: false };
+    const label = formatSingleKeyLabel(c.slice(4));
+    const textClass = label.length > 5 ? "text-xs" : (label.length > 3 ? "text-sm" : "");
+    return { main: label, sub: "", isTapHold: false, textClass: textClass };
   }
 
-  return { main: c, sub: "", isTapHold: false };
+  const textClass = c.length > 5 ? "text-xs" : (c.length > 3 ? "text-sm" : "");
+  return { main: c, sub: "", isTapHold: false, textClass: textClass };
 }
 
 function formatSingleKeyLabel(raw) {
@@ -1132,7 +1169,7 @@ function renderLayout() {
           `;
         } else {
           keyEl.innerHTML = `
-            <div>${display.main}</div>
+            <div class="key-main ${display.textClass || ''}">${display.main}</div>
             ${display.sub ? `<div class="key-sub">${display.sub}</div>` : ''}
           `;
         }
@@ -1626,11 +1663,9 @@ async function openKeymapFile() {
       types: [{
         description: 'ZMK Keymap File',
         accept: { 'text/plain': ['.keymap', '.txt'] }
-      }]
+      }],
+      startIn: fileHandle || 'downloads'
     };
-    if (fileHandle) {
-      pickerOptions.startIn = fileHandle;
-    }
 
     [fileHandle] = await window.showOpenFilePicker(pickerOptions);
     const file = await fileHandle.getFile();
@@ -1679,11 +1714,9 @@ async function saveKeymapFile() {
         types: [{
           description: 'ZMK Keymap File',
           accept: { 'text/plain': ['.keymap', '.txt'] }
-        }]
+        }],
+        startIn: fileHandle || 'downloads'
       };
-      if (fileHandle) {
-        saveOptions.startIn = fileHandle;
-      }
       const handle = await window.showSaveFilePicker(saveOptions);
       const writable = await handle.createWritable();
       await writable.write(content);
@@ -1815,7 +1848,7 @@ function exportViewerHTML() {
           } else {
             halfHtml += `
               <div class="key ${cls} ${isW2 ? 'w2' : ''}">
-                <div>${display.main}</div>
+                <div class="key-main ${display.textClass || ''}">${display.main}</div>
                 ${display.sub ? `<div class="key-sub">${display.sub}</div>` : ''}
               </div>
             `;
@@ -1916,6 +1949,10 @@ function exportViewerHTML() {
   .key.bt-key { background: var(--key-special); }
   .key.mouse-key { background: var(--key-mouse); }
   .key.tap-hold { border: 1px solid #38bdf8 !important; background: linear-gradient(135deg, #1e293b 0%, #1e1b4b 100%) !important; }
+
+  .key-main { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.2; }
+  .key-main.text-sm { font-size: 10px; letter-spacing: -0.5px; }
+  .key-main.text-xs { font-size: 9px; letter-spacing: -0.5px; }
 
   .key-sub { font-size: 8px; color: rgba(255,255,255,0.6); margin-top: 1px; }
   .key-tap { font-size: 10px; font-weight: 700; color: #fff; }
