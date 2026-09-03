@@ -157,8 +157,8 @@ button.danger:hover {
 
 .keyboard-half-container {
   display: inline-flex;
-  gap: 36px;
-  min-width: max-content;
+  justify-content: flex-start;
+  gap: 52px; /* 1U (52px) fixed spacing between left and right boards */
   padding: 10px 0;
 }
 
@@ -225,6 +225,10 @@ button.danger:hover {
 .key.layer-key { background: var(--key-layer); }
 .key.bt-key { background: var(--key-special); }
 .key.mouse-key { background: var(--key-mouse); }
+.key.tap-hold {
+  border: 1px solid #38bdf8 !important;
+  background: linear-gradient(135deg, #1e293b 0%, #1e1b4b 100%) !important;
+}
 
 .key-sub {
   font-size: 9px;
@@ -235,6 +239,51 @@ button.danger:hover {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.key-tap {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+.key-hold {
+  font-size: 9px;
+  font-weight: 700;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.2);
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-top: 2px;
+}
+
+/* Tap-Hold Editor Bar */
+.taphold-editor-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0f172a;
+  border: 1px solid var(--panel-border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.taphold-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.taphold-slot.active {
+  border-color: var(--primary);
+  background: rgba(56, 189, 248, 0.15);
+}
+.taphold-slot.tap { color: #fff; background: #1e293b; }
+.taphold-slot.hold { color: #38bdf8; background: #1e1b4b; }
 
 /* Palette Styling */
 .palette-container {
@@ -448,6 +497,7 @@ button.danger:hover {
     <div id="fileStatus" class="file-status">⚪ keymap.keymap 未読込</div>
     <button id="btnOpenFile" class="primary" onclick="openKeymapFile()">📂 ファイルを開く</button>
     <button id="btnSaveFile" class="success" onclick="saveKeymapFile()">💾 上書き保存</button>
+    <button style="background: #0284c7; border-color: #38bdf8; color: #fff; font-weight: 600;" onclick="exportViewerHTML()">📄 参照用HTMLを出力</button>
     <a href="vscode://file/c:/Users/tomo0/Downloads/Auto-KDK/AeroGrid_60-akdk/config/keymap.keymap" style="text-decoration: none;">
       <button style="background: #1e293b; border-color: #3b82f6; color: #93c5fd;">📝 keymapファイルを開く (VS Code)</button>
     </a>
@@ -471,9 +521,27 @@ button.danger:hover {
 
 <!-- Keymap Stage View -->
 <div class="main-stage">
-  <div id="modeHelpText" style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px;">
-    🎯 <strong>編集中のキー:</strong> <span id="currentSelectionLabel" style="color: var(--primary); font-weight: 600;">未選択（上のキーをクリックして選択）</span>
+  <div id="modeHelpText" style="font-size: 13px; color: var(--text-sub); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+    <div>🎯 <strong>編集中のキー:</strong> <span id="currentSelectionLabel" style="color: var(--primary); font-weight: 600;">未選択（上のキーをクリックして選択）</span></div>
+    <div style="display: flex; gap: 6px; align-items: center;">
+      <span style="font-size: 12px; color: var(--text-sub);">動作モード:</span>
+      <button id="btnModeSingle" class="primary" style="padding: 4px 10px; font-size: 12px;" onclick="setKeyMode('single')">① 通常（単一入力）</button>
+      <button id="btnModeTapHold" style="padding: 4px 10px; font-size: 12px;" onclick="setKeyMode('taphold')">② 短押し＆長押し (Tap/Hold)</button>
+    </div>
   </div>
+
+  <!-- Tap-Hold Active Config Bar -->
+  <div id="tapHoldConfigBar" class="taphold-editor-bar" style="display: none;">
+    <div style="font-size: 12px; color: #38bdf8; font-weight: 600;">⚡ 短押し＆長押しの設定:</div>
+    <div id="tapSlotBtn" class="taphold-slot tap active" onclick="setTapHoldTarget('tap')">
+      <span>短押し (Tap):</span> <strong id="tapSlotLabel">未設定</strong>
+    </div>
+    <div id="holdSlotBtn" class="taphold-slot hold" onclick="setTapHoldTarget('hold')">
+      <span>長押し (Hold):</span> <strong id="holdSlotLabel">未設定</strong>
+    </div>
+    <div style="font-size: 11px; color: var(--text-sub);">※ 枠を選んでから下のパレットをクリックして設定</div>
+  </div>
+
   <div id="comboHelpText" style="display: none; font-size: 13px; color: #f59e0b; margin-bottom: 12px;">
     ⚡ <strong>同時押しモード:</strong> 上のキーボードから同時押しする2つのキー（1つ目：黄、2つ目：紫）をクリックして選択してください。
   </div>
@@ -903,6 +971,8 @@ let keymapData = {
 let currentLayer = 0;
 let isCombosMode = false;
 let selectedKeyIndex = null;
+let currentKeyMode = 'single'; // 'single' | 'taphold'
+let tapHoldActiveSlot = 'tap'; // 'tap' | 'hold'
 let comboPick1 = null;
 let comboPick2 = null;
 let comboPickOutput = null;
@@ -910,14 +980,49 @@ let fileHandle = null;
 
 // Label Formatter
 function formatKeyDisplay(code) {
-  if (!code) return { main: "", sub: "" };
+  if (!code) return { main: "", sub: "", isTapHold: false };
   let c = code.trim();
-  if (c === "&none") return { main: "—", sub: "none" };
-  if (c === "&trans") return { main: "▽", sub: "trans" };
+  if (c === "&none") return { main: "—", sub: "none", isTapHold: false };
+  if (c === "&trans") return { main: "▽", sub: "trans", isTapHold: false };
 
-  if (c.startsWith("&mo ")) return { main: `MO ${c.slice(4)}`, sub: "Layer" };
-  if (c.startsWith("&tog ")) return { main: `TOG ${c.slice(5)}`, sub: "Layer" };
-  if (c.startsWith("&bt ")) return { main: c.replace("&bt ", ""), sub: "BT" };
+  // Layer-Tap (&lt <layer> <key>)
+  if (c.startsWith("&lt ")) {
+    const parts = c.slice(4).trim().split(/\s+/);
+    const layerNum = parts[0] || "?";
+    const tapRaw = parts[1] || "";
+    const tapDisp = formatSingleKeyLabel(tapRaw);
+    return {
+      main: tapDisp,
+      sub: `L${layerNum}`,
+      isTapHold: true,
+      tapCode: tapRaw.startsWith("&kp ") ? tapRaw : `&kp ${tapRaw}`,
+      holdCode: `&mo ${layerNum}`,
+      tapLabel: tapDisp,
+      holdLabel: `Layer ${layerNum}`
+    };
+  }
+
+  // Mod-Tap (&mt <mod> <key>)
+  if (c.startsWith("&mt ")) {
+    const parts = c.slice(4).trim().split(/\s+/);
+    const modRaw = parts[0] || "";
+    const tapRaw = parts[1] || "";
+    const modDisp = formatSingleKeyLabel(modRaw);
+    const tapDisp = formatSingleKeyLabel(tapRaw);
+    return {
+      main: tapDisp,
+      sub: modDisp,
+      isTapHold: true,
+      tapCode: tapRaw.startsWith("&kp ") ? tapRaw : `&kp ${tapRaw}`,
+      holdCode: modRaw.startsWith("&kp ") ? modRaw : `&kp ${modRaw}`,
+      tapLabel: tapDisp,
+      holdLabel: modDisp
+    };
+  }
+
+  if (c.startsWith("&mo ")) return { main: `MO ${c.slice(4)}`, sub: "Layer", isTapHold: false };
+  if (c.startsWith("&tog ")) return { main: `TOG ${c.slice(5)}`, sub: "Layer", isTapHold: false };
+  if (c.startsWith("&bt ")) return { main: c.replace("&bt ", ""), sub: "BT", isTapHold: false };
 
   // Mouse key bindings
   if (c.startsWith("&mkp ")) {
@@ -925,50 +1030,57 @@ function formatKeyDisplay(code) {
     const mouseMap = {
       "LCLK": "左クリック", "RCLK": "右クリック", "MCLK": "中クリック", "MB4": "進む", "MB5": "戻る"
     };
-    return { main: mouseMap[btn] || btn, sub: c };
+    return { main: mouseMap[btn] || btn, sub: c, isTapHold: false };
   }
   if (c.startsWith("&msc ")) {
     const scrl = c.slice(5);
     const scrlMap = {
       "SCRL_UP": "スクロール↑", "SCRL_DOWN": "スクロール↓", "SCRL_LEFT": "スクロール←", "SCRL_RIGHT": "スクロール→"
     };
-    return { main: scrlMap[scrl] || scrl, sub: c };
+    return { main: scrlMap[scrl] || scrl, sub: c, isTapHold: false };
   }
   if (c.startsWith("&mmv ")) {
     const mmv = c.slice(5);
     const mmvMap = {
       "MOVE_UP": "マウス↑", "MOVE_DOWN": "マウス↓", "MOVE_LEFT": "マウス←", "MOVE_RIGHT": "マウス→"
     };
-    return { main: mmvMap[mmv] || mmv, sub: c };
+    return { main: mmvMap[mmv] || mmv, sub: c, isTapHold: false };
   }
 
   if (c.startsWith("&kp ")) {
-    let key = c.slice(4);
-    const labelMap = {
-      "ESC": "ESC", "ENTER": "Enter", "BSPC": "BS", "DELETE": "Del", "TAB": "Tab", "SPACE": "Space",
-      "LCTRL": "Ctrl", "LSHFT": "Shift", "LALT": "Alt", "LGUI": "Win", "RCTRL": "Ctrl", "RSHFT": "Shift", "RALT": "Alt", "RGUI": "Win",
-      "CAPS": "Caps", "INSERT": "Ins", "UP": "↑", "DOWN": "↓", "LEFT": "←", "RIGHT": "→",
-      "PGUP": "PgUp", "PG_UP": "PgUp", "PGDN": "PgDn", "PG_DN": "PgDn", "HOME": "Home", "END": "End",
-      "MINUS": "-", "EQUAL": "=", "LBKT": "[", "RBKT": "]", "SEMI": ";", "SQT": "'",
-      "GRAVE": "`", "BSLH": "\\", "COMMA": ",", "DOT": ".", "FSLH": "/", "SLASH": "/",
-      "KP_PLUS": "+", "KP_MINUS": "-", "KP_ASTERISK": "*", "KP_SLASH": "/",
-      "KP_N0": "0", "KP_N1": "1", "KP_N2": "2", "KP_N3": "3", "KP_N4": "4",
-      "KP_N5": "5", "KP_N6": "6", "KP_N7": "7", "KP_N8": "8", "KP_N9": "9",
-      "KP_DOT": ".", "KP_COMMA": ",", "LS(F10)": "Shift+F10", "LS(LBKT)": "{", "LS(RBKT)": "}",
-      "LS(SEMI)": ":", "LS(SQT)": '\"', "LS(GRAVE)": "~", "LS(BSLH)": "|"
-    };
-    if (labelMap[key]) return { main: labelMap[key], sub: key };
-    if (key.startsWith("N") && key.length === 2 && !isNaN(key[1])) {
-      return { main: key[1], sub: key };
-    }
-    return { main: key, sub: "" };
+    return { main: formatSingleKeyLabel(c.slice(4)), sub: "", isTapHold: false };
   }
 
-  return { main: c, sub: "" };
+  return { main: c, sub: "", isTapHold: false };
+}
+
+function formatSingleKeyLabel(raw) {
+  if (!raw) return "";
+  let key = raw.replace(/^&kp\s+/, "").trim();
+  const labelMap = {
+    "ESC": "ESC", "ENTER": "Enter", "BSPC": "BS", "DELETE": "Del", "TAB": "Tab", "SPACE": "Space",
+    "LCTRL": "Ctrl", "LSHFT": "Shift", "LALT": "Alt", "LGUI": "Win", "RCTRL": "Ctrl", "RSHFT": "Shift", "RALT": "Alt", "RGUI": "Win",
+    "CAPS": "Caps", "INSERT": "Ins", "UP": "↑", "DOWN": "↓", "LEFT": "←", "RIGHT": "→",
+    "PGUP": "PgUp", "PG_UP": "PgUp", "PGDN": "PgDn", "PG_DN": "PgDn", "HOME": "Home", "END": "End",
+    "MINUS": "-", "EQUAL": "=", "LBKT": "[", "RBKT": "]", "SEMI": ";", "SQT": "'",
+    "GRAVE": "`", "BSLH": "\\", "COMMA": ",", "DOT": ".", "FSLH": "/", "SLASH": "/",
+    "KP_PLUS": "+", "KP_MINUS": "-", "KP_ASTERISK": "*", "KP_SLASH": "/",
+    "KP_N0": "0", "KP_N1": "1", "KP_N2": "2", "KP_N3": "3", "KP_N4": "4",
+    "KP_N5": "5", "KP_N6": "6", "KP_N7": "7", "KP_N8": "8", "KP_N9": "9",
+    "KP_DOT": ".", "KP_COMMA": ",", "KP_NUM": "NumLk", "KP_ENTER": "Enter", "KP_EQUAL": "=",
+    "LS(F10)": "Shift+F10", "LS(LBKT)": "{", "LS(RBKT)": "}",
+    "LS(SEMI)": ":", "LS(SQT)": '\"', "LS(GRAVE)": "~", "LS(BSLH)": "|"
+  };
+  if (labelMap[key]) return labelMap[key];
+  if (key.startsWith("N") && key.length === 2 && !isNaN(key[1])) {
+    return key[1];
+  }
+  return key;
 }
 
 function getKeyClass(code) {
   if (!code || code === "&none") return "none-key";
+  if (code.startsWith("&lt ") || code.startsWith("&mt ")) return "tap-hold";
   if (code.startsWith("&mo ") || code.startsWith("&tog ")) return "layer-key";
   if (code.startsWith("&bt ")) return "bt-key";
   if (code.startsWith("&mkp ") || code.startsWith("&msc ") || code.startsWith("&mmv ")) return "mouse-key";
@@ -1013,10 +1125,17 @@ function renderLayout() {
           if (comboPick2 === keyIdx) keyEl.classList.add("combo-pick-2");
         }
 
-        keyEl.innerHTML = `
-          <div>${display.main}</div>
-          ${display.sub ? `<div class="key-sub">${display.sub}</div>` : ''}
-        `;
+        if (display.isTapHold) {
+          keyEl.innerHTML = `
+            <div class="key-tap">${display.main}</div>
+            <div class="key-hold">${display.sub}</div>
+          `;
+        } else {
+          keyEl.innerHTML = `
+            <div>${display.main}</div>
+            ${display.sub ? `<div class="key-sub">${display.sub}</div>` : ''}
+          `;
+        }
         keyEl.onclick = () => onKeySlotClick(keyIdx);
         rowEl.appendChild(keyEl);
       });
@@ -1052,8 +1171,18 @@ function getNextKeyIndex(currentIdx) {
 function onKeySlotClick(keyIdx) {
   if (!isCombosMode) {
     selectedKeyIndex = keyIdx;
-    const code = keymapData.layers[currentLayer].bindings[keyIdx];
+    const code = keymapData.layers[currentLayer].bindings[keyIdx] || "&none";
     const display = formatKeyDisplay(code);
+
+    if (display.isTapHold) {
+      currentKeyMode = 'taphold';
+      updateTapHoldEditorUI(display.tapLabel, display.holdLabel);
+    } else {
+      currentKeyMode = 'single';
+      updateTapHoldEditorUI('未設定', '未設定');
+    }
+    updateModeButtons();
+
     document.getElementById("currentSelectionLabel").innerHTML = `Key #${keyIdx} (${display.main || code})`;
     renderLayout();
   } else {
@@ -1071,7 +1200,63 @@ function onKeySlotClick(keyIdx) {
   }
 }
 
-// Palette Click (from Bottom QWERTY or symbols)
+function setKeyMode(mode) {
+  currentKeyMode = mode;
+  updateModeButtons();
+
+  if (selectedKeyIndex === null) {
+    showToast("⚠️ まず上のキーボードから設定したいキーを選択してください");
+    return;
+  }
+
+  const code = keymapData.layers[currentLayer].bindings[selectedKeyIndex] || "&none";
+  const display = formatKeyDisplay(code);
+
+  if (mode === 'taphold') {
+    document.getElementById("tapHoldConfigBar").style.display = "flex";
+    tapHoldActiveSlot = 'hold'; // Encourage choosing Hold layer/mod first
+    updateTapHoldSlotButtons();
+    
+    // Default tap to current key if it was a single key
+    let tapLabel = display.isTapHold ? display.tapLabel : (display.main || "SPACE");
+    let holdLabel = display.isTapHold ? display.holdLabel : "Layer 1";
+    updateTapHoldEditorUI(tapLabel, holdLabel);
+    showToast("短押し＆長押しモードに切り替えました。下のパレットから長押し時の動作（レイヤー等）を選んでください。");
+  } else {
+    document.getElementById("tapHoldConfigBar").style.display = "none";
+    // Convert back to single key if it was tap-hold
+    if (display.isTapHold) {
+      const tapRaw = display.tapCode || "&kp SPACE";
+      keymapData.layers[currentLayer].bindings[selectedKeyIndex] = tapRaw;
+      renderLayout();
+      showToast(`Key #${selectedKeyIndex} を単一キー (${display.tapLabel}) に戻しました`);
+    }
+  }
+}
+
+function updateModeButtons() {
+  const isTapHold = (currentKeyMode === 'taphold');
+  document.getElementById("btnModeSingle").className = isTapHold ? "" : "primary";
+  document.getElementById("btnModeTapHold").className = isTapHold ? "primary" : "";
+  document.getElementById("tapHoldConfigBar").style.display = isTapHold ? "flex" : "none";
+}
+
+function setTapHoldTarget(slot) {
+  tapHoldActiveSlot = slot;
+  updateTapHoldSlotButtons();
+}
+
+function updateTapHoldSlotButtons() {
+  document.getElementById("tapSlotBtn").classList.toggle("active", tapHoldActiveSlot === 'tap');
+  document.getElementById("holdSlotBtn").classList.toggle("active", tapHoldActiveSlot === 'hold');
+}
+
+function updateTapHoldEditorUI(tapLabel, holdLabel) {
+  document.getElementById("tapSlotLabel").textContent = tapLabel || "未設定";
+  document.getElementById("holdSlotLabel").textContent = holdLabel || "未設定";
+}
+
+// Palette Click (from Bottom QWERTY, layers, symbols, mouse)
 function paletteClick(code) {
   if (!isCombosMode) {
     if (selectedKeyIndex === null) {
@@ -1079,17 +1264,59 @@ function paletteClick(code) {
       return;
     }
     const currentEditedIndex = selectedKeyIndex;
-    keymapData.layers[currentLayer].bindings[currentEditedIndex] = code;
-    
-    // Auto-advance to next key (rightward, then next row left, wrap around)
-    selectedKeyIndex = getNextKeyIndex(currentEditedIndex);
-    const nextCode = keymapData.layers[currentLayer].bindings[selectedKeyIndex];
-    const nextDisplay = formatKeyDisplay(nextCode);
-    document.getElementById("currentSelectionLabel").innerHTML = `Key #${selectedKeyIndex} (${nextDisplay.main || nextCode})`;
+    const currentBinding = keymapData.layers[currentLayer].bindings[currentEditedIndex] || "&none";
+    const currentDisplay = formatKeyDisplay(currentBinding);
 
-    renderLayout();
-    const display = formatKeyDisplay(code);
-    showToast(`Key #${currentEditedIndex} を ${display.main || code} に設定 (次は Key #${selectedKeyIndex})`);
+    if (currentKeyMode === 'single') {
+      // 1. Single Key Mode
+      keymapData.layers[currentLayer].bindings[currentEditedIndex] = code;
+      
+      // Auto-advance
+      selectedKeyIndex = getNextKeyIndex(currentEditedIndex);
+      const nextCode = keymapData.layers[currentLayer].bindings[selectedKeyIndex];
+      const nextDisplay = formatKeyDisplay(nextCode);
+      document.getElementById("currentSelectionLabel").innerHTML = `Key #${selectedKeyIndex} (${nextDisplay.main || nextCode})`;
+
+      renderLayout();
+      const display = formatKeyDisplay(code);
+      showToast(`Key #${currentEditedIndex} を ${display.main || code} に設定 (次は Key #${selectedKeyIndex})`);
+    } else {
+      // 2. Tap-Hold Mode
+      let currentTap = currentDisplay.isTapHold ? currentDisplay.tapCode : (currentDisplay.main ? `&kp ${currentDisplay.main}` : "&kp SPACE");
+      let currentHold = currentDisplay.isTapHold ? currentDisplay.holdCode : "&mo 1";
+
+      if (tapHoldActiveSlot === 'tap') {
+        currentTap = code;
+        tapHoldActiveSlot = 'hold'; // Auto switch to hold
+      } else {
+        currentHold = code;
+        tapHoldActiveSlot = 'tap'; // Auto switch to tap
+      }
+      updateTapHoldSlotButtons();
+
+      // Build &lt or &mt
+      let constructedCode = "&none";
+      const cleanTap = currentTap.replace(/^&kp\s+/, "").trim().toUpperCase();
+
+      if (currentHold.startsWith("&mo ")) {
+        const layerNum = currentHold.slice(4).trim();
+        constructedCode = `&lt ${layerNum} ${cleanTap}`;
+      } else if (currentHold.startsWith("&kp ")) {
+        const modKey = currentHold.slice(4).trim().toUpperCase();
+        constructedCode = `&mt ${modKey} ${cleanTap}`;
+      } else if (currentHold.startsWith("&tog ")) {
+        const layerNum = currentHold.slice(5).trim();
+        constructedCode = `&lt ${layerNum} ${cleanTap}`;
+      } else {
+        constructedCode = `&lt 1 ${cleanTap}`;
+      }
+
+      keymapData.layers[currentLayer].bindings[currentEditedIndex] = constructedCode;
+      const updatedDisplay = formatKeyDisplay(constructedCode);
+      updateTapHoldEditorUI(updatedDisplay.tapLabel, updatedDisplay.holdLabel);
+      renderLayout();
+      showToast(`Key #${currentEditedIndex} を [短押: ${updatedDisplay.tapLabel} / 長押: ${updatedDisplay.holdLabel}] に設定しました！`);
+    }
   } else {
     // In Combos mode, select output key
     comboPickOutput = code;
@@ -1110,12 +1337,14 @@ function switchLayer(layerIdx) {
   isCombosMode = false;
   currentLayer = layerIdx;
   document.getElementById("combosView").style.display = "none";
-  document.getElementById("modeHelpText").style.display = "block";
+  document.getElementById("modeHelpText").style.display = "flex";
   document.getElementById("comboHelpText").style.display = "none";
   document.querySelectorAll(".tab-btn").forEach((btn, idx) => {
     btn.classList.toggle("active", idx === layerIdx);
   });
   selectedKeyIndex = null;
+  currentKeyMode = 'single';
+  updateModeButtons();
   document.getElementById("currentSelectionLabel").textContent = "未選択（上のキーをクリックして選択）";
   renderLayout();
 }
@@ -1124,6 +1353,7 @@ function switchCombosTab() {
   isCombosMode = true;
   document.getElementById("combosView").style.display = "block";
   document.getElementById("modeHelpText").style.display = "none";
+  document.getElementById("tapHoldConfigBar").style.display = "none";
   document.getElementById("comboHelpText").style.display = "block";
   document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
   document.querySelectorAll(".tab-btn")[5].classList.add("active");
@@ -1307,7 +1537,15 @@ function parseKeymapFile(text) {
       const reconstructed = [];
       for (let i = 0; i < rawBindings.length; i++) {
         let token = rawBindings[i];
-        if (token === "&bt") {
+        if (token === "&lt") {
+          let b1 = rawBindings[++i] || "0";
+          let b2 = rawBindings[++i] || "NONE";
+          reconstructed.push(`&lt ${b1} ${b2}`);
+        } else if (token === "&mt") {
+          let b1 = rawBindings[++i] || "LCTRL";
+          let b2 = rawBindings[++i] || "NONE";
+          reconstructed.push(`&mt ${b1} ${b2}`);
+        } else if (token === "&bt") {
           let b1 = rawBindings[++i] || "";
           let b2 = rawBindings[++i] || "";
           reconstructed.push(`&bt ${b1}${b2 ? ' ' + b2 : ''}`.trim());
@@ -1540,6 +1778,221 @@ async function triggerGithubBuild() {
     console.error("Failed to dispatch workflow:", err);
     window.open(`https://github.com/${repoOwner}/${repoName}/actions`, "_blank");
   }
+}
+
+// Export Standalone All-in-One Reference HTML (1-Screen View for all layers & combos)
+function exportViewerHTML() {
+  const layerNames = [
+    "Layer 0: Base",
+    "Layer 1: Nav / Symbols",
+    "Layer 2: Num / Func",
+    "Layer 3: BT / System",
+    "Layer 4: Numpad"
+  ];
+
+  let layersHtml = "";
+  keymapData.layers.forEach((layer, lIdx) => {
+    const lName = layerNames[lIdx] || `Layer ${lIdx}`;
+    
+    function buildHalf(side) {
+      let halfHtml = '<div class="half-board">';
+      KEY_LAYOUT[side].forEach(rowDef => {
+        halfHtml += '<div class="row">';
+        rowDef.forEach(item => {
+          const keyIdx = typeof item === "object" ? item.id : item;
+          const isW2 = typeof item === "object" && item.w === 2;
+          const code = layer.bindings[keyIdx] || "&none";
+          const display = formatKeyDisplay(code);
+          const cls = getKeyClass(code);
+
+          if (display.isTapHold) {
+            halfHtml += `
+              <div class="key ${cls} ${isW2 ? 'w2' : ''}">
+                <div class="key-tap">${display.main}</div>
+                <div class="key-hold">${display.sub}</div>
+              </div>
+            `;
+          } else {
+            halfHtml += `
+              <div class="key ${cls} ${isW2 ? 'w2' : ''}">
+                <div>${display.main}</div>
+                ${display.sub ? `<div class="key-sub">${display.sub}</div>` : ''}
+              </div>
+            `;
+          }
+        });
+        halfHtml += '</div>';
+      });
+      halfHtml += '</div>';
+      return halfHtml;
+    }
+
+    layersHtml += `
+      <section class="layer-card">
+        <div class="layer-title">
+          <span class="layer-badge">L${lIdx}</span>
+          <h2>${lName}</h2>
+        </div>
+        <div class="keyboard-half-container">
+          ${buildHalf("left")}
+          ${buildHalf("right")}
+        </div>
+      </section>
+    `;
+  });
+
+  // Build Combos Table HTML
+  const l0 = keymapData.layers[0].bindings;
+  let comboRowsHtml = "";
+  keymapData.combos.forEach(c => {
+    const k1 = formatKeyDisplay(l0[c.keys[0]]).main;
+    const k2 = formatKeyDisplay(l0[c.keys[1]]).main;
+    const out = formatKeyDisplay(c.binding).main;
+    comboRowsHtml += `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td><span class="badge key1">#${c.keys[0]} ${k1}</span> + <span class="badge key2">#${c.keys[1]} ${k2}</span></td>
+        <td><span class="badge output">${out || c.binding}</span> <code>${c.binding}</code></td>
+        <td>50ms</td>
+      </tr>
+    `;
+  });
+
+  const viewerDoc = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AeroGrid_60 キーマップ早見表 (全レイヤー一覧)</title>
+<style>
+  :root {
+    --bg-main: #0b0f19;
+    --card-bg: #131b2e;
+    --border: rgba(255,255,255,0.08);
+    --primary: #38bdf8;
+    --text: #f8fafc;
+    --text-sub: #94a3b8;
+    --key-default: #1e293b;
+    --key-mod: #334155;
+    --key-func: #1e3a8a;
+    --key-layer: #581c87;
+    --key-special: #064e3b;
+    --key-mouse: #115e59;
+    --key-none: #090d16;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg-main); color: var(--text); padding: 24px; min-width: 1100px; }
+  header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+  h1 { font-size: 24px; color: var(--primary); }
+  .subtitle { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
+  
+  .legend-container { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--text-sub); margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
+  .legend-color { width: 12px; height: 12px; border-radius: 3px; }
+
+  .layers-grid { display: flex; flex-direction: column; gap: 24px; }
+  .layer-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+  .layer-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .layer-badge { background: var(--primary); color: #0b0f19; font-weight: 700; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+  .layer-title h2 { font-size: 16px; font-weight: 600; color: #fff; }
+
+  .keyboard-half-container { display: inline-flex; justify-content: flex-start; gap: 48px; }
+  .half-board { display: flex; flex-direction: column; gap: 6px; }
+  .row { display: flex; gap: 6px; }
+  
+  .key {
+    width: 48px; height: 48px;
+    background: var(--key-default);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; text-align: center; padding: 2px;
+  }
+  .key.w2 { width: 102px; }
+  .key.none-key { background: var(--key-none); border-style: dashed; color: #334155; }
+  .key.mod-key { background: var(--key-mod); }
+  .key.func-key { background: var(--key-func); }
+  .key.layer-key { background: var(--key-layer); }
+  .key.bt-key { background: var(--key-special); }
+  .key.mouse-key { background: var(--key-mouse); }
+  .key.tap-hold { border: 1px solid #38bdf8 !important; background: linear-gradient(135deg, #1e293b 0%, #1e1b4b 100%) !important; }
+
+  .key-sub { font-size: 8px; color: rgba(255,255,255,0.6); margin-top: 1px; }
+  .key-tap { font-size: 10px; font-weight: 700; color: #fff; }
+  .key-hold { font-size: 8px; font-weight: 700; color: #38bdf8; background: rgba(56, 189, 248, 0.2); padding: 1px 3px; border-radius: 3px; margin-top: 1px; }
+
+  /* Combos Section */
+  .combos-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 24px; margin-top: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-sub); }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge.key1 { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); }
+  .badge.key2 { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+  .badge.output { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+  code { background: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 11px; color: #38bdf8; margin-left: 6px; }
+
+  @media print {
+    body { background: #fff; color: #000; padding: 0; min-width: 100%; }
+    .layer-card, .combos-card { border: 1px solid #ccc; background: #fff; page-break-inside: avoid; }
+    .key { border: 1px solid #888; color: #000; background: #fff !important; }
+    .key-hold { color: #000; border: 1px solid #000; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>AeroGrid_60 キーマップ早見表</h1>
+    <div class="subtitle">全5レイヤー & 2キー同時押し（Combos）一覧 参照用ドキュメント</div>
+    <div class="legend-container">
+      <span>凡例:</span>
+      <div class="legend-item"><div class="legend-color" style="background: var(--key-default);"></div> 通常</div>
+      <div class="legend-item"><div class="legend-color" style="background: var(--key-mod);"></div> 修飾 (Ctrl/Shift/Alt/Win)</div>
+      <div class="legend-item"><div class="legend-color" style="background: var(--key-func);"></div> 制御/Fキー (Enter/Tab/F1-F24)</div>
+      <div class="legend-item"><div class="legend-color" style="background: var(--key-mouse);"></div> マウス (クリック/スクロール)</div>
+      <div class="legend-item"><div class="legend-color" style="background: var(--key-layer);"></div> レイヤー (MO/TOG)</div>
+      <div class="legend-item"><div class="legend-color" style="background: var(--key-special);"></div> BT/System</div>
+      <div class="legend-item"><div class="legend-color" style="background: var(--key-none); border:1px dashed #64748b;"></div> 無効/透過</div>
+      <div class="legend-item"><div class="legend-color" style="background: #1e1b4b; border: 1px solid var(--primary);"></div> 短押し/長押し</div>
+    </div>
+  </div>
+  <div style="font-size: 12px; color: var(--text-sub); text-align: right;">
+    出力日時: ${new Date().toLocaleString('ja-JP')}<br>
+    ブラウザ単体で閲覧可能（印刷対応）
+  </div>
+</header>
+
+<div class="layers-grid">
+  ${layersHtml}
+</div>
+
+<div class="combos-card">
+  <h2 style="font-size: 16px; margin-bottom: 6px;">⚡ 2キー同時押し (Combos) 一覧</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>名称</th>
+        <th>同時押しキー (Layer 0)</th>
+        <th>入力されるキー</th>
+        <th>判定時間</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${comboRowsHtml}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([viewerDoc], { type: "text/html;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "AeroGrid_60_keymap_reference.html";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast("📄 参照用HTML (AeroGrid_60_keymap_reference.html) を出力しました！");
 }
 
 window.onload = async () => {
