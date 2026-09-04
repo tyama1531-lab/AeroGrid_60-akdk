@@ -1495,11 +1495,13 @@ function addCombo() {
   renderComboTable();
 }
 
-function updateComboTimeout(idx, newMs) {
+function updateComboTimeout(idx, newMs, showToastFlag = false) {
   const val = parseInt(newMs, 10);
   if (!isNaN(val) && val > 0) {
     keymapData.combos[idx].timeoutMs = val;
-    showToast(`判定時間を ${val}ms に更新しました`);
+    if (showToastFlag) {
+      showToast(`判定時間を ${val}ms に更新しました`);
+    }
   }
 }
 
@@ -1529,7 +1531,8 @@ function renderComboTable() {
         <div style="display:flex; align-items:center; gap:4px;">
           <input type="number" value="${tMs}" min="10" max="500" step="5" 
             style="background:#1e293b; color:#38bdf8; font-weight:700; border:1px solid var(--panel-border); padding:4px 6px; border-radius:4px; font-size:13px; width:65px; text-align:center;"
-            onchange="updateComboTimeout(${idx}, this.value)">
+            oninput="updateComboTimeout(${idx}, this.value, false)"
+            onchange="updateComboTimeout(${idx}, this.value, true)">
           <span style="font-size:12px; color:var(--text-sub);">ms</span>
         </div>
       </td>
