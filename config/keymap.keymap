@@ -59,7 +59,7 @@
 				&kp TAB         &none           &kp UP          &none           &kp PGUP        &none                            &kp KP_N7       &kp KP_N8       &kp KP_N9       &kp KP_PLUS     &none           &kp DELETE     
 				&kp LCTRL       &kp LEFT        &kp DOWN        &kp RIGHT       &kp PGDN        &none                            &kp KP_N4       &kp KP_N5       &kp KP_N6       &kp KP_MINUS                     &kp ENTER      
  				&kp LSHFT       &none           &kp X           &kp C           &kp V           &none                            &kp KP_N1       &kp KP_N2       &kp KP_N3       &none           &none           &kp F7         
-				&kp CAPS        &kp LGUI        &kp LALT                     &kp SPACE                       &none                            &none                            &kp KP_N0                      &kp KP_DOT          &kp KP_COMMA              &none          
+				&kp CAPS        &kp LGUI        &kp LALT                     &kp SPACE                       &none                            &kp F24                          &kp KP_N0                      &kp KP_DOT          &kp KP_COMMA              &none          
             >;
         };
     };
